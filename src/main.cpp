@@ -108,6 +108,7 @@ int main() {
     convertYUYtoJPEG(*camerabuffer.get(), IMAGE_WIDTH, IMAGE_HEIGHT, imagebuffer);
     std::cout << "🗹  convert raw image to jpeg" << std::endl; 
 
+    # HERE: Debug inserting EXIF images
     // static const std::vector<uint8_t> metadata = create_EXIF_metadata(
     //     	    "Apple Facetime HD",
     //     	    get_datetime(),
