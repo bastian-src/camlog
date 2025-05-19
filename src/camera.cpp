@@ -8,7 +8,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/ioctl.h>
 #include <linux/types.h>
 #include <linux/v4l2-common.h>
 #include <linux/v4l2-controls.h>
@@ -31,7 +30,7 @@ int open_camera_fd(std::string device="/dev/video0") {
 
 int check_device_capability(int fd) {
     v4l2_capability capability;
-    if(ioctl(fd, VIDIOC_QUERYCAP, &capability) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_QUERYCAP), &capability) < 0){
         perror("Failed to get device capabilities, VIDIOC_QUERYCAP");
         return -1;
     }
@@ -45,7 +44,7 @@ int set_image_format(int fd) {
     imageFormat.fmt.pix.height = 720;
     imageFormat.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     imageFormat.fmt.pix.field = V4L2_FIELD_NONE;
-    if(ioctl(fd, VIDIOC_S_FMT, &imageFormat) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_S_FMT), &imageFormat) < 0){
         perror("Device could not set format, VIDIOC_S_FMT");
         return -1;
     }
@@ -57,7 +56,7 @@ int set_control(int fd, int control_id, int value) {
     control.id = control_id;
     control.value = value;
 
-    if (ioctl(fd, VIDIOC_S_CTRL, &control) < 0) {
+    if (ioctl(fd, static_cast<int>(VIDIOC_S_CTRL), &control) < 0) {
         perror("Failed to set control");
         return -1;
     }
@@ -73,7 +72,7 @@ int request_device_buffer(int fd) {
     requestBuffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     requestBuffer.memory = V4L2_MEMORY_MMAP;
 
-    if(ioctl(fd, VIDIOC_REQBUFS, &requestBuffer) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_REQBUFS), &requestBuffer) < 0){
         perror("Could not request buffer from device, VIDIOC_REQBUFS");
         return -1;
     }
@@ -84,7 +83,7 @@ int request_query_buffer(int fd, std::shared_ptr<v4l2_buffer> queryBuffer) {
     queryBuffer->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     queryBuffer->memory = V4L2_MEMORY_MMAP;
     queryBuffer->index = 0;
-    if(ioctl(fd, VIDIOC_QUERYBUF, queryBuffer.get()) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_QUERYBUF), queryBuffer.get()) < 0){
         perror("Device did not return the buffer information, VIDIOC_QUERYBUF");
         return -1;
     }
@@ -127,7 +126,7 @@ int start_stream(int fd, std::shared_ptr<v4l2_buffer> bufferInfo) {
     bufferInfo->index = 0;
 
     // Activate streaming
-    if(ioctl(fd, VIDIOC_STREAMON, &bufferInfo->type) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_STREAMON), &bufferInfo->type) < 0){
         perror("Could not start streaming, VIDIOC_STREAMON");
         return -1;
     }
@@ -138,12 +137,12 @@ int start_stream(int fd, std::shared_ptr<v4l2_buffer> bufferInfo) {
 
 int queue_single_frame(int fd, std::shared_ptr<v4l2_buffer> bufferInfo, std::shared_ptr<FrameBuffer> frameBuffer, std::shared_ptr<std::vector<uint8_t>> frame) {
     // Queue the buffer
-    if(ioctl(fd, VIDIOC_QBUF, bufferInfo.get()) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_QBUF), bufferInfo.get()) < 0){
         perror("Could not queue buffer, VIDIOC_QBUF");
         return -1;
     }
     // Dequeue the buffer
-    if(ioctl(fd, VIDIOC_DQBUF, bufferInfo.get()) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_DQBUF), bufferInfo.get()) < 0){
         perror("Could not dequeue the buffer, VIDIOC_DQBUF");
         return -1;
     }
@@ -184,7 +183,7 @@ int get_frame_and_skip(int fd, int *buffertype, std::shared_ptr<std::vector<uint
 }
 
 int end_stream(int fd, int type) {
-    if(ioctl(fd, VIDIOC_STREAMOFF, &type) < 0){
+    if(ioctl(fd, static_cast<int>(VIDIOC_STREAMOFF), &type) < 0){
         perror("Could not end streaming, VIDIOC_STREAMOFF");
         return -1;
     }
