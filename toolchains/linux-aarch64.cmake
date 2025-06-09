@@ -1,0 +1,5 @@
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+set(CMAKE_CROSSCOMPILING TRUE)
+
+set(TARGET aarch64-unknown-linux)

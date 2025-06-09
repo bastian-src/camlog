@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(camlog)
+include(ExternalProject)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 14)
@@ -9,12 +10,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(camlog src/main.cpp)
 
-find_package(JPEG REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(EXIF REQUIRED libexif)
 
-target_include_directories(camlog PRIVATE ${JPEG_INCLUDE_DIR} ${EXIF_INCLUDE_DIRS})
-target_link_libraries(camlog PRIVATE ${JPEG_LIBRARY} ${EXIF_LIBRARIES})
+# Statically link libaries
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+include(Dependencies.cmake)
+
+target_include_directories(camlog PRIVATE ${THIRD_PARTY_INCLUDE_DIR})
+target_link_directories(camlog PRIVATE ${THIRD_PARTY_LIBRARY_DIR})
+target_link_libraries(camlog PRIVATE jpeg exif)
 
 target_compile_options(camlog PRIVATE -Wall -Wextra -Wpedantic -Werror -g)
 
